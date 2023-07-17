@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,9 +24,11 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,16 +36,18 @@ import lombok.Setter;
 @Entity
 @Table(name = "infos_stagiaire")
 @Data
+@Builder
 @NoArgsConstructor
 public class InfosStagiaireEntity implements UserDetails {
 
 	
 	@Id
+	@Max(value=99999 ,message = "5 caractères est la longueur maximale")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Setter(AccessLevel.NONE)
 	private Long numéro;
 
-	@Column(length = 120)
+	@Column(length = 120 , nullable = false)
 	@NotEmpty(message = "nom ne peut pas être vide")
 	private String nom;
 
@@ -56,7 +62,7 @@ public class InfosStagiaireEntity implements UserDetails {
 	@Transient
     public Integer stagiaireAge() throws ParseException {
 		SimpleDateFormat franceDateFormat = new SimpleDateFormat("dd/mm/yyyy");   //format de date pour france 
-		Date dt1=franceDateFormat.parse("10/01/2001");
+		Date dt1=franceDateFormat.parse(this.getDate_de_naissance());
 		Date dt2=new Date();
 		Long diff=dt2.getTime()-dt1.getTime();
 		return (int) (TimeUnit.MILLISECONDS.toDays(diff) / 365);
@@ -80,14 +86,17 @@ public class InfosStagiaireEntity implements UserDetails {
 	@JoinColumn(name="etablissement",referencedColumnName = "libelle")
 	private InfosÉtablissementEntity établissement;
 
-	@Column(length = 20)
+	@Column(length = 20, nullable = false)
 	@NotEmpty(message = "login/username ne peut pas être vide")
 	private String login;
 
 	@Column(length = 20)
 	@NotEmpty(message = "le mot de passe ne peut pas être vide")
 	private String mot_de_passe;
+	
 
+	private Boolean status=true;
+	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return null;

@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,11 +14,10 @@ import lombok.NoArgsConstructor;
 public class InfosÉtablissementEntity {
 
 	@Id
-	@Column(length=200)
-	@NotNull
+	@Column(length=200, nullable = false)
 	private String libelle;
 	
-	@Column(length=255)
+	@Column(length=255, nullable = false)
 	private String adresse;
 
 }

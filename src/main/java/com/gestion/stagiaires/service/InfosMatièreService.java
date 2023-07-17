@@ -1,9 +1,8 @@
 package com.gestion.stagiaires.service;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Service;
 
-import com.gestion.stagiaires.entities.InfosMatièreEntity;
-
-public interface InfosMatièreService  extends  CrudRepository<InfosMatièreEntity, Long>{
+@Service
+public class InfosMatièreService {
 
 }
