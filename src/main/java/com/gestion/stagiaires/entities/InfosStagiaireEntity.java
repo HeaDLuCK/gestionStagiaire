@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,7 +27,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,7 +34,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "infos_stagiaire")
 @Data
-@Builder
 @NoArgsConstructor
 public class InfosStagiaireEntity implements UserDetails {
 
@@ -62,7 +59,7 @@ public class InfosStagiaireEntity implements UserDetails {
 	@Transient
     public Integer stagiaireAge() throws ParseException {
 		SimpleDateFormat franceDateFormat = new SimpleDateFormat("dd/mm/yyyy");   //format de date pour france 
-		Date dt1=franceDateFormat.parse(this.getDate_de_naissance());
+		Date dt1=franceDateFormat.parse(this.getDate_de_naissance().toString());
 		Date dt2=new Date();
 		Long diff=dt2.getTime()-dt1.getTime();
 		return (int) (TimeUnit.MILLISECONDS.toDays(diff) / 365);

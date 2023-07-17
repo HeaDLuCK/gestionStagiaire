@@ -10,19 +10,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.gestion.stagiaires.entities.InfosStagiaireEntity;
 import com.gestion.stagiaires.repository.InfosStagiaireRepository;
 
-import jakarta.validation.Valid;
 
 @Service
 public class InfosStagiaireService {
 	
 	@Autowired
 	InfosStagiaireRepository stagiaireRepository;
+	
+
+	public ResponseEntity<Object> get_stagiaires() {
+		Map<String,Object> stagiaires=new HashMap<>();
+		stagiaires.put("stagiaires", stagiaireRepository.findAll());
+		return ResponseEntity.status(HttpStatus.OK).body(stagiaires);
+	}
 	
 	
 	/*
@@ -59,7 +63,7 @@ public class InfosStagiaireService {
 	}
 	
 	
-	public ResponseEntity<Object> ajouter_stagiaire(InfosStagiaireEntity stagiaire) {
+	public ResponseEntity<Object> ajouter_stagiaire(InfosStagiaireEntity stagiaire) throws ParseException {
 		Map<String, Object> body = new HashMap<>();// output
 		if (!this.valide_lâge(stagiaire.stagiaireAge())) {
 			body.put("message", "l'âge doit être inférieur à 23 ans et supérieur à 10 ans");
