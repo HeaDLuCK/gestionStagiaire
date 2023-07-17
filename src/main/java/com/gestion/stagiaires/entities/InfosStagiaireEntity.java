@@ -2,10 +2,14 @@ package com.gestion.stagiaires.entities;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,7 +33,7 @@ import lombok.Setter;
 @Table(name = "infos_stagiaire")
 @Data
 @NoArgsConstructor
-public class InfosStagiaireEntity {
+public class InfosStagiaireEntity implements UserDetails {
 
 	
 	@Id
@@ -83,5 +87,40 @@ public class InfosStagiaireEntity {
 	@Column(length = 20)
 	@NotEmpty(message = "le mot de passe ne peut pas être vide")
 	private String mot_de_passe;
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return null;
+	}
+
+	@Override
+	public String getPassword() {
+		return  mot_de_passe;
+	}
+
+	@Override
+	public String getUsername() {
+		return login;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
 
 }
