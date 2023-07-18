@@ -10,41 +10,44 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gestion.stagiaires.authentication.AuthenticationService;
 import com.gestion.stagiaires.entities.InfosStagiaireEntity;
 import com.gestion.stagiaires.service.InfosStagiaireService;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/stagiaire")
+@RequestMapping("/api/v1/authrized/stagiaire")
 public class InfosStagiaireController {
 
 	@Autowired
 	private InfosStagiaireService stagiaireService;
+	@Autowired
+	private AuthenticationService registerService;
 
 	@GetMapping
 	public ResponseEntity<Object> getStagiaires() {
-		return stagiaireService.get_stagiaires();
+		return stagiaireService.getAll();
 	}
 	
 	@PostMapping
 	public ResponseEntity<Object> storeStagiaire(@Valid @RequestBody InfosStagiaireEntity stagiaire)
 			throws ParseException {
-		return stagiaireService.ajouter_stagiaire(stagiaire);
+		return registerService.register(stagiaire);
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<Object> updateStagiaire(@PathVariable("id") Long numéro,
-			@Valid @RequestBody InfosStagiaireEntity stagiaireNewInfo) {
-		return stagiaireService.update_stagiaire(numéro, stagiaireNewInfo);
+	@PutMapping("/update")
+	public ResponseEntity<Object> updateStagiaire(@Valid @RequestBody InfosStagiaireEntity stagiaireNewInfo) {
+		return stagiaireService.update(stagiaireNewInfo);
 	}
 
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Object> deleteStagiaire(@PathVariable("id") Long numéro) {
-		return stagiaireService.delete_stagiaire(numéro);
+	@DeleteMapping("/delete")
+	public ResponseEntity<Object> deleteStagiaire(@RequestHeader("id") Long id) {
+		return stagiaireService.delete(id);
 	}
 
 }

@@ -1,9 +1,8 @@
 package com.gestion.stagiaires.repository;
 
-import org.springframework.data.repository.CrudRepository;
 
-import com.gestion.stagiaires.entities.InfosMatièreEntity;
+import com.gestion.stagiaires.entities.InfosMatiereEntity;
 
-public interface InfosMatiereRepository  extends  CrudRepository<InfosMatièreEntity, Long> {
+public interface InfosMatiereRepository  extends  IBaseRepository<InfosMatiereEntity, Long> {
 
 }

@@ -4,13 +4,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import ch.qos.logback.classic.pattern.Util;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +27,7 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,25 +37,25 @@ import lombok.Setter;
 @Table(name = "infos_stagiaire")
 @Data
 @NoArgsConstructor
-public class InfosStagiaireEntity implements UserDetails {
+public class InfosStagiaireEntity extends BaseEntity implements UserDetails {
 
 	
-	@Id
-	@Max(value=99999 ,message = "5 caractères est la longueur maximale")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Setter(AccessLevel.NONE)
-	private Long numéro;
+	@Column(nullable = false, unique = true)
+	@Size(min = 5,message = "le numéro doit contenir 5 caractères")
+	@NotEmpty(message = "le numéro ne peut pas être vide")
+	@Setter(value=AccessLevel.NONE)
+	private String numero;
 
 	@Column(length = 120 , nullable = false)
 	@NotEmpty(message = "nom ne peut pas être vide")
 	private String nom;
 
 	@Column(length = 120)
-	private String prénom;
+	private String prenom;
 
 	@Column
 	@DateTimeFormat(pattern ="dd/MM/yyyy" )
-	@NotNull
+	@NotNull(message = "la date de naissance ne peut pas être vide")
 	private Date date_de_naissance;
 
 	@Transient
@@ -73,18 +75,18 @@ public class InfosStagiaireEntity implements UserDetails {
 	@ManyToMany(cascade={CascadeType.PERSIST, CascadeType.DETACH})
 	@JoinTable(
 			name = "stagiaire_professeur_association",
-			joinColumns = @JoinColumn(name = "prof_id" , referencedColumnName = "numéro"),
-			inverseJoinColumns = @JoinColumn(name = "stagiaire_id", referencedColumnName = "numéro")
+			joinColumns = @JoinColumn(name = "prof_id" , referencedColumnName = "id"),
+			inverseJoinColumns = @JoinColumn(name = "stagiaire_id", referencedColumnName = "id")
 			)
-	Set<InfosProfEntity> liste_de_professeur;
+	List<InfosProfEntity> liste_de_professeur;
 
 //	jointure pour  établissement;
 	@OneToOne
 	@JoinColumn(name="etablissement",referencedColumnName = "libelle")
-	private InfosÉtablissementEntity établissement;
+	private InfosEtablissementEntity etablissement;
 
 	@Column(length = 20, nullable = false)
-	@NotEmpty(message = "login/username ne peut pas être vide")
+	@NotEmpty(message = "login / username ne peut pas être vide")
 	private String login;
 
 	@Column(length = 20)

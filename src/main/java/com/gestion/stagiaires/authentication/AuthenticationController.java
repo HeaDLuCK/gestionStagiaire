@@ -1,5 +1,7 @@
 package com.gestion.stagiaires.authentication;
 
+import java.text.ParseException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +21,7 @@ public class AuthenticationController {
 	private AuthenticationService authenticationService;
 	
 	@PostMapping("/register")
-	public ResponseEntity<Object> register(@Valid @RequestBody InfosStagiaireEntity stagiaire) {
+	public ResponseEntity<Object> register(@Valid @RequestBody InfosStagiaireEntity stagiaire) throws ParseException {
 		return authenticationService.register(stagiaire);
 	}
 	

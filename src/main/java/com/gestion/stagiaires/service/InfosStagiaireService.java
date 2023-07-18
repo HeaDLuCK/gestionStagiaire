@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.gestion.stagiaires.entities.InfosStagiaireEntity;
@@ -16,23 +17,17 @@ import com.gestion.stagiaires.repository.InfosStagiaireRepository;
 
 
 @Service
-public class InfosStagiaireService {
+public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, InfosStagiaireRepository> {
 	
 	@Autowired
 	InfosStagiaireRepository stagiaireRepository;
-	
 
-	public ResponseEntity<Object> get_stagiaires() {
-		Map<String,Object> stagiaires=new HashMap<>();
-		stagiaires.put("stagiaires", stagiaireRepository.findAll());
-		return ResponseEntity.status(HttpStatus.OK).body(stagiaires);
-	}
-	
+	private  PasswordEncoder passwordEncoder;
 	
 	/*
 	 * valider  si l'âge est entre 10 ans et 23 ans
 	 */
-	private boolean valide_lâge(Integer age){
+	public boolean valide_lage(Integer age){
 		if (age < 10 || age> 23) {
 			return  false;
 		}
@@ -41,9 +36,10 @@ public class InfosStagiaireService {
 	/*
 	 * valider  si le nom complet est unique
 	 */
-	private boolean valide_le_nom_complet(String nom,String prénom){
-		if(prénom != null){
-			Long id = stagiaireRepository.findByFullName(nom, prénom);
+	
+	public boolean valide_le_nom_complet(String nom,String prenom){
+		if(prenom != null){
+			Long id = stagiaireRepository.findByFullName(nom, prenom);
 			if (id != null) {
 				return false;
 			}
@@ -51,64 +47,30 @@ public class InfosStagiaireService {
 		return true;
 	}
 
-	/*
-	 * BCryptPasswordEncoder bcrypt= new BCryptPasswordEncoder();
-	 * bcrypt.matches(thispassword,db password)
-	 */
-	
-	private String encryptedPassword(String password) {
-		BCryptPasswordEncoder bcrypt= new BCryptPasswordEncoder();
-		String encryptedPassword = bcrypt.encode(password);
-		return encryptedPassword;
-	}
-	
-	
-	public ResponseEntity<Object> ajouter_stagiaire(InfosStagiaireEntity stagiaire) throws ParseException {
+
+	public  ResponseEntity<Object> ajouter(InfosStagiaireEntity stagiaire){
 		Map<String, Object> body = new HashMap<>();// output
-		if (!this.valide_lâge(stagiaire.stagiaireAge())) {
+		if (!this.valide_lage(stagiaire.stagiaireAge())) {
 			body.put("message", "l'âge doit être inférieur à 23 ans et supérieur à 10 ans");
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
 		}
-		if (!this.valide_le_nom_complet(stagiaire.getNom(), stagiaire.getPrénom())) {
+		if (!this.valide_le_nom_complet(stagiaire.getNom(), stagiaire.getPrenom())) {
 			body.put("message", "cet nom complet est utilisé");
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
 		}
-		stagiaire.setMot_de_passe(this.encryptedPassword(stagiaire.getMot_de_passe()));
-		stagiaireRepository.save(stagiaire);
-		body.put("message", "stagiaire inséré avec succès");
-		return ResponseEntity.status(HttpStatus.CREATED).body(body);
+		
+		return super.ajouter_update(stagiaire,"stagiaire inséré avec succès");
 	}
 	
-	public ResponseEntity<Object> update_stagiaire(Long numéro,InfosStagiaireEntity stagiaireNewInfo){
-		InfosStagiaireEntity stagiaireInfoBeforeUpdate = stagiaireRepository.findById(numéro).get();
-		stagiaireInfoBeforeUpdate.setNom(stagiaireNewInfo.getNom());
-		stagiaireInfoBeforeUpdate.setPrénom(stagiaireNewInfo.getPrénom());
-		stagiaireInfoBeforeUpdate.setDate_de_naissance(stagiaireNewInfo.getDate_de_naissance());
-		stagiaireInfoBeforeUpdate.setAddresse(stagiaireNewInfo.getAddresse());
-		stagiaireInfoBeforeUpdate.setÉtablissement(stagiaireNewInfo.getÉtablissement());
-		stagiaireInfoBeforeUpdate.setLogin(stagiaireNewInfo.getLogin());
-		stagiaireInfoBeforeUpdate.setMot_de_passe(this.encryptedPassword(stagiaireNewInfo.getMot_de_passe()));
-		stagiaireRepository.save(stagiaireNewInfo);
-
-		Map<String,String> output=new HashMap<>();
-		output.put("message", "Stagiaire avec numéro "+stagiaireInfoBeforeUpdate.getNuméro()+" Mis à jour avec succés");
-
-		return ResponseEntity.status(HttpStatus.ACCEPTED).body(output);
-	}
-	
-	public ResponseEntity<Object> delete_stagiaire(Long numéro) {
-		Map<String,String> output= new HashMap<>();
-		Optional<InfosStagiaireEntity> stagiaire= stagiaireRepository.findById(numéro);
-		if(stagiaire.isPresent()){
-			stagiaireRepository.deleteById(numéro);
-			output.put("message","Stagiaire avec numéro "+numéro+" supprime avec succés" );
-			return ResponseEntity.status(HttpStatus.CREATED).body(output);
-		}else{
-			output.put("message","inconnu stagiaire inséré avec numéro "+numéro+", vérifier le numéro saisi" );
-			return ResponseEntity.status(HttpStatus.CREATED).body(output);
+	public ResponseEntity<Object> update(InfosStagiaireEntity stagiaire){
+		Map<String, Object> body = new HashMap<>();// output
+		if (!this.valide_lage(stagiaire.stagiaireAge())) {
+			body.put("message", "l'âge doit être inférieur à 23 ans et supérieur à 10 ans");
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
 		}
+		stagiaire.setMot_de_passe(passwordEncoder.encode(stagiaire.getMot_de_passe()));
+		
+		return super.ajouter_update(stagiaire, "Mis à jour avec succés");
 	}
 	
-	
-
 }
