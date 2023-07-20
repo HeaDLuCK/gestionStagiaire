@@ -1,7 +1,7 @@
 package com.gestion.stagiaires.config;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +39,14 @@ public class SecurityConfig {
 				.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider)
 				.exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, e) -> {
-					Map<String, Object> error = new HashMap<>();
-					error.put("time", LocalDateTime.now().toString());
+					Map<String, Object> error = new LinkedHashMap<>();
 					error.put("message", "unauthorized");
+					error.put("time", LocalDateTime.now().toString());
 					response.setContentType("application/json");
 					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 					response.getWriter().write(gson.toJson(error));
-				})).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+				}))
+				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 

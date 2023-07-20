@@ -20,7 +20,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtService {
 
 	@Value("${security_key}")
-	private static String SECRET_KEY;
+	private String SECRET_KEY;
 	
 	public String extractLogin(String token) {
 		return extractClaim(token, Claims::getSubject);

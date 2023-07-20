@@ -10,22 +10,22 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name="infos_prof")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class InfosProfEntity  extends BaseEntity {
 	
 	@Column(nullable = false,unique = true)
 	@Size(min = 5,message = "le numéro doit contenir 5 caractères")
-	@Setter(value=AccessLevel.NONE)
 	private String numero;
 	
 	@Column(length = 120, nullable = false)
@@ -47,9 +47,14 @@ public class InfosProfEntity  extends BaseEntity {
 	private InfosMatiereEntity matiere;
 	
 	//jointure pour eleves
-	@ManyToMany(mappedBy = "liste_de_professeur",cascade={CascadeType.PERSIST, CascadeType.DETACH})
+	@ManyToMany(mappedBy = "liste_de_professeur",cascade={CascadeType.ALL})
 	private List<InfosStagiaireEntity> liste_des_eleves;
 	
+	@Transient
+	private List<Long> stagiaire_ids;//pour define les stagiaires
+
+	@Transient
+	private Long matiere_id;//pour define l'matiere
 	
 
 }
