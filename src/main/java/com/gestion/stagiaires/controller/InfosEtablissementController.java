@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gestion.stagiaires.entities.InfosEtablissementEntity;
 import com.gestion.stagiaires.service.InfosEtablissementService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -29,12 +31,12 @@ public class InfosEtablissementController {
 	}
 
 	@PostMapping()
-	public ResponseEntity<Object> ajouter(@RequestBody InfosEtablissementEntity etablissement) throws ParseException  {
+	public ResponseEntity<Object> ajouter(@Valid @RequestBody InfosEtablissementEntity etablissement) throws ParseException  {
 		return etablissementService.ajouter_update(etablissement);
 	}
 
 	@PutMapping("/update")
-	public ResponseEntity<Object> update(@RequestBody InfosEtablissementEntity etablissement) throws ParseException {
+	public ResponseEntity<Object> update(@Valid @RequestBody InfosEtablissementEntity etablissement) throws ParseException {
 		return etablissementService.ajouter_update(etablissement);
 	}
 

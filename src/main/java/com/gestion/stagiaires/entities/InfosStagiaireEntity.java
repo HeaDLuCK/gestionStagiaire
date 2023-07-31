@@ -10,6 +10,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -20,6 +23,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,10 +32,13 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "infos_stagiaire")
+@Table(name = "infos_stagiaire", uniqueConstraints = @UniqueConstraint(columnNames = { "nom", "prenom" }))
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
+@JsonIdentityInfo(
+  generator = ObjectIdGenerators.PropertyGenerator.class, 
+  property = "id")
 public class InfosStagiaireEntity extends BaseEntity implements UserDetails {
 
 	@Column(nullable = false, unique = true)
@@ -61,18 +68,17 @@ public class InfosStagiaireEntity extends BaseEntity implements UserDetails {
 
 	// jointure pour établissement;
 	@OneToOne
-	@JoinColumn(name = "etablissement", referencedColumnName = "libelle")
+	@JoinColumn(name = "etablissement_id", referencedColumnName = "id")
 	private InfosEtablissementEntity etablissement;
 
-	@Column(length = 20, nullable = false)
+	@Column(length = 20, nullable = false, unique = true)
 	@NotEmpty(message = "login / username ne peut pas être vide")
 	private String login;
 
 	@Column(length = 255)
 	@NotEmpty(message = "le mot de passe ne peut pas être vide")
+	// @JsonIgnore
 	private String mot_de_passe;
-
-
 
 	private Boolean status = true;
 
@@ -91,36 +97,43 @@ public class InfosStagiaireEntity extends BaseEntity implements UserDetails {
 	private Long etablissement_id;// pour define l'etablissement
 
 	@Override
+	@JsonIgnore
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return null;
 	}
 
 	@Override
+	@JsonIgnore
 	public String getPassword() {
 		return mot_de_passe;
 	}
 
 	@Override
+	@JsonIgnore
 	public String getUsername() {
 		return login;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isAccountNonExpired() {
 		return true;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isAccountNonLocked() {
 		return true;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isCredentialsNonExpired() {
 		return true;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isEnabled() {
 		return true;
 	}

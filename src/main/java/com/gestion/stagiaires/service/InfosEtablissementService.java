@@ -6,4 +6,5 @@ import com.gestion.stagiaires.repository.InfosEtablissementRepository;
 
 @Service
 public class InfosEtablissementService extends BaseService<InfosEtablissementEntity, InfosEtablissementRepository> {
+
 }

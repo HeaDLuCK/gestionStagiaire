@@ -1,8 +1,11 @@
 package com.gestion.stagiaires.controller;
 
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gestion.stagiaires.entities.InfosProfEntity;
 import com.gestion.stagiaires.service.InfosProfService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/authorize/professeur")
 public class InfosProfController {
@@ -27,15 +32,29 @@ public class InfosProfController {
     public ResponseEntity<Object> getall() {
         return profService.getAll();
     }
+    @GetMapping("/countprof")
+    public ResponseEntity<Object> countProfByMatiere(){
+        return profService.countProfByMatiere();
+    }
 
-    @PostMapping()
-    public ResponseEntity<Object> ajouter(@RequestBody InfosProfEntity professeur) throws ParseException {
-        return profService.ajouter_update(professeur);
+    @GetMapping("/countstagiaire")
+    public ResponseEntity<Object> countStagiaireByProf(){
+        return profService.countStagiaireByProf();
+    }
+
+    @PostMapping
+    public ResponseEntity<Object> ajouter(@Valid @RequestBody InfosProfEntity professeur) throws ParseException {
+        return profService.ajouter_update_jointure(professeur);
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Object> update(@RequestBody InfosProfEntity professeur) throws ParseException {
-        return profService.ajouter_update(professeur);
+    public ResponseEntity<Object> update(@RequestHeader("id") Long id,@Valid @RequestBody InfosProfEntity professeur) throws ParseException {
+        if(id != professeur.getId()){
+					Map<String,String> message=new HashMap<>();
+					message.put("message", "mauvaise id vérifier les entrées");
+					return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(message);
+				}
+        return profService.ajouter_update_jointure(professeur);
     }
 
     @DeleteMapping("/delete")

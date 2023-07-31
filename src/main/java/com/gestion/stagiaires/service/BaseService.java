@@ -19,9 +19,10 @@ public abstract class BaseService<E extends BaseEntity,R extends JpaRepository<E
 	private R repository;
 	
 	
+	
 	public ResponseEntity<Object> getAll() {
 		Map<String, Object> body = new HashMap<>();// output
-		body.put("stagiaires", repository.findAll());
+		body.put("data", repository.findAll());
 		
 		return ResponseEntity.status(HttpStatus.OK).body(body);
 		
@@ -32,7 +33,7 @@ public abstract class BaseService<E extends BaseEntity,R extends JpaRepository<E
         return anonymous.isPresent() ? anonymous.get() : null;
 	}
 	
-	public ResponseEntity<Object> ajouter_update(E object) throws ParseException {
+	public ResponseEntity<Object> ajouter_update(E object) throws ParseException{
 		Map<String, Object> body = new HashMap<>();// output
 		repository.save(object);
 		body.put("message", "ajouté ou mis à jour avec succès");

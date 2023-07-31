@@ -1,8 +1,11 @@
 package com.gestion.stagiaires.controller;
 
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,8 +37,13 @@ public class InfosStagiaireController {
 	// method ajouter est dans AuthenticationController comme register
 
 	@PutMapping("/update")
-	public ResponseEntity<Object> update(@Valid @RequestBody InfosStagiaireEntity stagiaire)
+	public ResponseEntity<Object> update(@RequestHeader("id") Long id,@Valid @RequestBody InfosStagiaireEntity stagiaire)
 			throws ParseException {
+				if(id != stagiaire.getId()){
+					Map<String,String> message=new HashMap<>();
+					message.put("message", "mauvaise id vérifier les entrées");
+					return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(message);
+				}
 		return stagiaireService.ajouter_update_jointure(stagiaire);
 	}
 

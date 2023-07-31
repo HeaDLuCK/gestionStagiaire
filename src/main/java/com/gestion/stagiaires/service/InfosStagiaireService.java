@@ -3,6 +3,7 @@ package com.gestion.stagiaires.service;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.gestion.stagiaires.dto.StagiareDto;
 import com.gestion.stagiaires.entities.InfosEtablissementEntity;
 import com.gestion.stagiaires.entities.InfosProfEntity;
 import com.gestion.stagiaires.entities.InfosStagiaireEntity;
@@ -24,14 +26,13 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 	InfosStagiaireRepository stagiaireRepository;
 
 	@Autowired
-	private  PasswordEncoder passwordEncoder;
+	private PasswordEncoder passwordEncoder;
 
 	@Autowired
 	private InfosProfService profService;
 
 	@Autowired
 	private InfosEtablissementService etablissementService;
-
 
 	/*
 	 * valider si l'âge est entre 10 ans et 23 ans
@@ -63,9 +64,58 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 		return true;
 	}
 
+	/**
+	 * create Number with 5 digits
+	 */
+	public static String createNumber(Long number) {
+		int OUTPUT_LENGTH = 5;
+		if (number == null) {
+			return null;
+		}
+		int numberLength = String.valueOf(number).length();
+		int helper = OUTPUT_LENGTH - numberLength;
+		String output = ""; // the return value
+		for (int i = 0; i < helper; i++) {
+			output += "0";
+		}
+		output += number;
+		return output;
+	}
+
+	/**
+	 * il renverra l'id et le nom complet du stagiaire
+	 */
+	public ResponseEntity<Object> getStagiaireInfo() {
+		Map<String, Object> body = new HashMap<>();// output
+		Optional<StagiareDto> stagiaires = stagiaireRepository.findForSelect();
+		body.put("data", stagiaires.get());
+		return ResponseEntity.status(HttpStatus.OK).body(body);
+	}
+
 	@Override
 	public ResponseEntity<Object> ajouter_update(InfosStagiaireEntity stagiaire) throws ParseException {
 		Map<String, Object> body = new HashMap<>();// output
+		if (stagiaire.getId() == null) {
+			Long derniere_id=stagiaireRepository.findLastNumero()!= null ? stagiaireRepository.findLastNumero(): 0;
+			Long id = derniere_id + 1;
+			String helper = createNumber(id);
+			if (!helper.equals(stagiaire.getNumero())) {
+				body.put("message", "le numéro doit être unique");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+			}
+		} else {
+			/**
+			 * vérifier si le stagiaire dans la base de données
+			*/
+			InfosStagiaireEntity validated_stagiaire = super.findOne(stagiaire.getId());
+			if (validated_stagiaire != null) {
+				String helper = createNumber(stagiaire.getNumero());
+				if (!helper.equals(validated_stagiaire.getNumero())) {
+					body.put("message", "le numéro doit être unique");
+					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+				}
+			}
+		}
 		if (!this.valide_lage(stagiaire.stagiaireAge())) {
 			body.put("message", "l'âge doit être inférieur à 23 ans et supérieur à 10 ans");
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
@@ -75,7 +125,6 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
 		}
 		stagiaire.setMot_de_passe(passwordEncoder.encode(stagiaire.getMot_de_passe()));
-		System.out.println(stagiaire);
 		return super.ajouter_update(stagiaire);
 	}
 
@@ -83,12 +132,11 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 			throws ParseException {
 		if (stagiaire.getProfesseurs_ids() != null) {
 			if (!stagiaire.getProfesseurs_ids().isEmpty()) {
-				stagiaire.getProfesseurs_ids().stream().map(id -> {
+				stagiaire.getProfesseurs_ids().forEach(id -> {
 					InfosProfEntity professeur = profService.findOne(id);
 					if (professeur != null) {
 						stagiaire.getListe_de_professeur().add(professeur);
 					}
-					return id;
 				});
 			}
 		}
