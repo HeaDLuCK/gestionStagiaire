@@ -99,7 +99,7 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 	 */
 	public ResponseEntity<Object> getGenereNumero() {
 		Map<String, String> body = new HashMap<>();
-		Long NumeroGenere = stagiaireRepository.findLastNumero();
+		Long NumeroGenere = stagiaireRepository.findLastNumero() == null ? 0 : stagiaireRepository.findLastNumero();
 
 		body.put("numero", createNumber(NumeroGenere + 1));
 		return ResponseEntity.status(HttpStatus.OK).body(body);
@@ -155,7 +155,7 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 			throws ParseException {
 		if (stagiaire.getProfesseurs_ids() != null) {
 			if (!stagiaire.getProfesseurs_ids().isEmpty()) {
-				List<InfosProfEntity> helper=new ArrayList<>();
+				List<InfosProfEntity> helper = new ArrayList<>();
 				stagiaire.getProfesseurs_ids().forEach(id -> {
 					InfosProfEntity professeur = profService.findOne(id);
 					if (professeur != null) {

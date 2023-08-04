@@ -32,6 +32,27 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
     @Lazy
     private InfosStagiaireService stagiaireService;
 
+    /*
+	 * valider si le nom complet est unique
+	 */
+
+	public boolean valide_le_nom_complet(String nom, String prenom, Long id) {
+		if (prenom != null) {
+
+			/*
+			 * le deuxième id est l'identifiant que j'ai obtenu à partir de cette requête
+			 * et je vais le comparer avec l'identifiant du stagiaire/professeur
+			 * s'ils correspondent, cela signifie que c'est le même stagiaire/professeur
+			 */
+
+			Long second_id = profRepository.findByFullName(nom, prenom);
+			if (second_id != null && id != second_id) {
+				return false;
+			}
+		}
+		return true;
+	}
+
     /**
      * il renverra l'id et le nom complet du professeur
      */
@@ -47,7 +68,7 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
      */
     public ResponseEntity<Object> getGenereNumero() {
         Map<String, String> body = new HashMap<>();
-        Long NumeroGenere = profRepository.findLastNumero();
+        Long NumeroGenere = profRepository.findLastNumero() ==null ? 0 : profRepository.findLastNumero() ;
         body.put("numero", InfosStagiaireService.createNumber(NumeroGenere + 1));
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
@@ -76,7 +97,7 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
                 }
             }
         }
-        if (!stagiaireService.valide_le_nom_complet(professeur.getNom(), professeur.getPrenom(), professeur.getId())) {
+        if (!this.valide_le_nom_complet(professeur.getNom(), professeur.getPrenom(), professeur.getId())) {
             body.put("message", "cet nom complet est utilisé");
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
         }
@@ -100,7 +121,7 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
                     }
                 });
         }
-        
+
         if (professeur.getStagiaire_ids() != null && !professeur.getStagiaire_ids().isEmpty()) {
                 professeur.getStagiaire_ids().forEach(id -> {
                     InfosStagiaireEntity stagiaire = stagiaireService.findOne(id);

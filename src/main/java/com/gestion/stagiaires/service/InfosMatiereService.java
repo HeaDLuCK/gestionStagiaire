@@ -39,7 +39,7 @@ public class InfosMatiereService extends BaseService<InfosMatiereEntity, InfosMa
 	 */
 	public ResponseEntity<Object> getGenereNumero() {
 		Map<String, String> body = new HashMap<>();
-		Long NumeroGenere = matiereRepository.findLastNumero();
+		Long NumeroGenere = matiereRepository.findLastNumero() == null ? 0 : matiereRepository.findLastNumero();
 		body.put("numero", InfosStagiaireService.createNumber(NumeroGenere + 1));
 		return ResponseEntity.status(HttpStatus.OK).body(body);
 	}
@@ -55,7 +55,7 @@ public class InfosMatiereService extends BaseService<InfosMatiereEntity, InfosMa
 				}
 			});
 		}
-		
+
 		Map<String, Object> body = new HashMap<>();// output
 		if (matiere.getId() == null) {
 			Long derniere_id = matiereRepository.findLastNumero() != null ? matiereRepository.findLastNumero() : 0;
