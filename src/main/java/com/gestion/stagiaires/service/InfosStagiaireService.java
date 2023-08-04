@@ -34,17 +34,6 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 	@Autowired
 	private InfosEtablissementService etablissementService;
 
-	// public ResponseEntity<Object> getAll() {
-	// Map<String, Object> body = new HashMap<>();// output
-	// System.out.println(stagiaireRepository.findById((long) 1).get());
-	// int list = stagiaireRepository.findById((long)
-	// 1).get().getListe_de_professeurs().size();
-	// body.put("data", list);
-
-	// return ResponseEntity.status(HttpStatus.OK).body(body);
-
-	// }
-
 	/*
 	 * valider si l'âge est entre 10 ans et 23 ans
 	 */
