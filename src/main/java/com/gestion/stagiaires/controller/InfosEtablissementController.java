@@ -30,6 +30,11 @@ public class InfosEtablissementController {
 		return etablissementService.getAll();
 	}
 
+	@GetMapping("/select")
+	public ResponseEntity<Object> etablissementSelect(){
+		return etablissementService.getEtablissementInfo();
+	}
+
 	@PostMapping()
 	public ResponseEntity<Object> ajouter(@Valid @RequestBody InfosEtablissementEntity etablissement) throws ParseException  {
 		return etablissementService.ajouter_update(etablissement);

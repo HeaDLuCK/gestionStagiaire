@@ -42,6 +42,16 @@ public class InfosProfController {
         return profService.countStagiaireByProf();
     }
 
+    @GetMapping("/numerogenere")
+	public ResponseEntity<Object> numeroGenere() {
+		return profService.getGenereNumero();
+	}
+
+    @GetMapping("/select")
+    public ResponseEntity<Object> profSelect(){
+        return profService.getProfInfo();
+    }
+
     @PostMapping
     public ResponseEntity<Object> ajouter(@Valid @RequestBody InfosProfEntity professeur) throws ParseException {
         return profService.ajouter_update_jointure(professeur);

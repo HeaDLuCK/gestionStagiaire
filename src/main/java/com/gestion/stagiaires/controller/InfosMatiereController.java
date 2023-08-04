@@ -28,9 +28,19 @@ public class InfosMatiereController {
     @Autowired
     private InfosMatiereService matiereService;
 
+    @GetMapping("/numerogenere")
+	public ResponseEntity<Object> numeroGenere() {
+		return matiereService.getGenereNumero();
+	}
+
     @GetMapping
     public ResponseEntity<Object> getall() {
         return matiereService.getAll();
+    }
+
+    @GetMapping("/select")
+    public ResponseEntity<Object> matiereSelect(){
+        return matiereService.getMatiereInfo();
     }
 
     @PostMapping()

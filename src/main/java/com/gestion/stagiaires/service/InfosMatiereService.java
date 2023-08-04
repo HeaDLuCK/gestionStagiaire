@@ -3,7 +3,6 @@ package com.gestion.stagiaires.service;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.gestion.stagiaires.dto.MatiereDto;
 import com.gestion.stagiaires.entities.InfosMatiereEntity;
 import com.gestion.stagiaires.entities.InfosProfEntity;
 import com.gestion.stagiaires.repository.InfosMatiereRepository;
@@ -22,18 +20,30 @@ public class InfosMatiereService extends BaseService<InfosMatiereEntity,InfosMat
 
 	@Autowired
 	private InfosMatiereRepository matiereRepository;
+	
     @Autowired
 	private InfosProfService profService;
 
 	/**
-	 * il renverra l'id et le nom complet du matiere
+	 * il renverra l'id et libelle du matière
 	 */
-	public ResponseEntity<Object>  getProfInfo(){
+	public ResponseEntity<Object>  getMatiereInfo(){
 		Map<String, Object> body = new HashMap<>();// output
-		Optional<MatiereDto> matieres=matiereRepository.findForSelect();
-		body.put("data", matieres.get());
+		body.put("data", matiereRepository.findForSelect());
 		return ResponseEntity.status(HttpStatus.OK).body(body);
 	}
+
+	/**
+	 * obtenir numéro pour nouveau matière
+	 *
+	 */
+	public ResponseEntity<Object> getGenereNumero(){
+		Map<String,String> body = new HashMap<>();
+		Long NumeroGenere=matiereRepository.findLastNumero();
+		body.put("numero", InfosStagiaireService.createNumber(NumeroGenere+1));
+		return ResponseEntity.status(HttpStatus.OK).body(body);
+	}
+
 
     public  ResponseEntity<Object> ajouter_update_jointure(InfosMatiereEntity matiere) throws ParseException {
 		

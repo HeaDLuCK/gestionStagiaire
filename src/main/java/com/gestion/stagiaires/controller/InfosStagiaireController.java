@@ -29,6 +29,18 @@ public class InfosStagiaireController {
 	@Autowired
 	private InfosStagiaireService stagiaireService;
 
+	@GetMapping("/numerogenere")
+	public ResponseEntity<Object> numeroGenere() {
+		return stagiaireService.getGenereNumero();
+	}
+
+	@GetMapping("/select")
+	public ResponseEntity<Object> stagiaireSelect(){
+		return stagiaireService.getStagiaireInfo();
+	}
+
+
+
 	@GetMapping
 	public ResponseEntity<Object> getall() {
 		return stagiaireService.getAll();
@@ -37,13 +49,14 @@ public class InfosStagiaireController {
 	// method ajouter est dans AuthenticationController comme register
 
 	@PutMapping("/update")
-	public ResponseEntity<Object> update(@RequestHeader("id") Long id,@Valid @RequestBody InfosStagiaireEntity stagiaire)
+	public ResponseEntity<Object> update(@RequestHeader("id") Long id,
+			@Valid @RequestBody InfosStagiaireEntity stagiaire)
 			throws ParseException {
-				if(id != stagiaire.getId()){
-					Map<String,String> message=new HashMap<>();
-					message.put("message", "mauvaise id vérifier les entrées");
-					return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(message);
-				}
+		if (id != stagiaire.getId()) {
+			Map<String, String> message = new HashMap<>();
+			message.put("message", "mauvaise id vérifier les entrées");
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(message);
+		}
 		return stagiaireService.ajouter_update_jointure(stagiaire);
 	}
 

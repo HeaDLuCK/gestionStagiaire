@@ -1,9 +1,10 @@
 package com.gestion.stagiaires.service;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -12,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.gestion.stagiaires.dto.StagiareDto;
 import com.gestion.stagiaires.entities.InfosEtablissementEntity;
 import com.gestion.stagiaires.entities.InfosProfEntity;
 import com.gestion.stagiaires.entities.InfosStagiaireEntity;
@@ -33,6 +33,17 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 
 	@Autowired
 	private InfosEtablissementService etablissementService;
+
+	// public ResponseEntity<Object> getAll() {
+	// Map<String, Object> body = new HashMap<>();// output
+	// System.out.println(stagiaireRepository.findById((long) 1).get());
+	// int list = stagiaireRepository.findById((long)
+	// 1).get().getListe_de_professeurs().size();
+	// body.put("data", list);
+
+	// return ResponseEntity.status(HttpStatus.OK).body(body);
+
+	// }
 
 	/*
 	 * valider si l'âge est entre 10 ans et 23 ans
@@ -83,12 +94,23 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 	}
 
 	/**
+	 * obtenir numéro pour nouveau stagiaire
+	 *
+	 */
+	public ResponseEntity<Object> getGenereNumero() {
+		Map<String, String> body = new HashMap<>();
+		Long NumeroGenere = stagiaireRepository.findLastNumero();
+
+		body.put("numero", createNumber(NumeroGenere + 1));
+		return ResponseEntity.status(HttpStatus.OK).body(body);
+	}
+
+	/**
 	 * il renverra l'id et le nom complet du stagiaire
 	 */
 	public ResponseEntity<Object> getStagiaireInfo() {
 		Map<String, Object> body = new HashMap<>();// output
-		Optional<StagiareDto> stagiaires = stagiaireRepository.findForSelect();
-		body.put("data", stagiaires.get());
+		body.put("data", stagiaireRepository.findForSelect());
 		return ResponseEntity.status(HttpStatus.OK).body(body);
 	}
 
@@ -96,7 +118,7 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 	public ResponseEntity<Object> ajouter_update(InfosStagiaireEntity stagiaire) throws ParseException {
 		Map<String, Object> body = new HashMap<>();// output
 		if (stagiaire.getId() == null) {
-			Long derniere_id=stagiaireRepository.findLastNumero()!= null ? stagiaireRepository.findLastNumero(): 0;
+			Long derniere_id = stagiaireRepository.findLastNumero() != null ? stagiaireRepository.findLastNumero() : 0;
 			Long id = derniere_id + 1;
 			String helper = createNumber(id);
 			if (!helper.equals(stagiaire.getNumero())) {
@@ -106,10 +128,10 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 		} else {
 			/**
 			 * vérifier si le stagiaire dans la base de données
-			*/
+			 */
 			InfosStagiaireEntity validated_stagiaire = super.findOne(stagiaire.getId());
 			if (validated_stagiaire != null) {
-				String helper = createNumber(stagiaire.getNumero());
+				String helper = stagiaire.getNumero();
 				if (!helper.equals(validated_stagiaire.getNumero())) {
 					body.put("message", "le numéro doit être unique");
 					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
@@ -125,6 +147,7 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
 		}
 		stagiaire.setMot_de_passe(passwordEncoder.encode(stagiaire.getMot_de_passe()));
+
 		return super.ajouter_update(stagiaire);
 	}
 
@@ -132,12 +155,14 @@ public class InfosStagiaireService extends BaseService<InfosStagiaireEntity, Inf
 			throws ParseException {
 		if (stagiaire.getProfesseurs_ids() != null) {
 			if (!stagiaire.getProfesseurs_ids().isEmpty()) {
+				List<InfosProfEntity> helper=new ArrayList<>();
 				stagiaire.getProfesseurs_ids().forEach(id -> {
 					InfosProfEntity professeur = profService.findOne(id);
 					if (professeur != null) {
-						stagiaire.getListe_de_professeur().add(professeur);
+						helper.add(professeur);
 					}
 				});
+				stagiaire.setProfesseurs(helper);
 			}
 		}
 		if (stagiaire.getEtablissement_id() != null) {

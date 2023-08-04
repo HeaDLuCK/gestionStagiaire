@@ -1,5 +1,6 @@
 package com.gestion.stagiaires.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,12 +20,10 @@ public interface InfosStagiaireRepository  extends  JpaRepository<InfosStagiaire
 
 	Optional<InfosStagiaireEntity> findByLogin(String login);
 
-	@Query("SELECT is.id,CONCAT(is.nom, \" \", is.prenom) FROM InfosStagiaireEntity is WHERE is.status = true")
-	Optional<StagiareDto> findForSelect();
+	@Query("SELECT new com.gestion.stagiaires.dto.StagiareDto(is.id,is.nom, is.prenom) FROM InfosStagiaireEntity is WHERE is.status = true")
+	List<StagiareDto> findForSelect();
 
 
-	@Query("SELECT is.id from InfosStagiaireEntity is ORDER BY is.id DESC LIMIT 1")
-	Long findLastId();
 
 	@Query("SELECT MAX(CAST(is.numero AS int)) from InfosStagiaireEntity is ")
 	Long findLastNumero();

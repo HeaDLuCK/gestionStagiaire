@@ -24,6 +24,7 @@ public class AuthenticationController {
 	@Autowired
 	private InfosStagiaireService stagiaireService;
 
+	
 
 	@PostMapping("/register")
 	public ResponseEntity<Object> register(@Valid @RequestBody InfosStagiaireEntity stagiaire)

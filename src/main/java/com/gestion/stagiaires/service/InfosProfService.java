@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.gestion.stagiaires.dto.ProfDto;
 import com.gestion.stagiaires.entities.InfosMatiereEntity;
 import com.gestion.stagiaires.entities.InfosProfEntity;
 import com.gestion.stagiaires.entities.InfosStagiaireEntity;
@@ -38,8 +36,18 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
      */
     public ResponseEntity<Object> getProfInfo() {
         Map<String, Object> body = new HashMap<>();// output
-        Optional<ProfDto> professeurs = profRepository.findForSelect();
-        body.put("data", professeurs.get());
+        body.put("data", profRepository.findForSelect());
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
+    /**
+     * obtenir numéro pour nouveau professeur
+     *
+     */
+    public ResponseEntity<Object> getGenereNumero() {
+        Map<String, String> body = new HashMap<>();
+        Long NumeroGenere = profRepository.findLastNumero();
+        body.put("numero", InfosStagiaireService.createNumber(NumeroGenere + 1));
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
@@ -47,7 +55,7 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
     public ResponseEntity<Object> ajouter_update(InfosProfEntity professeur) throws ParseException {
         Map<String, Object> body = new HashMap<>();// output
         if (professeur.getId() == null) {
-            Long derniere_id = profRepository.findLastId() != null ? profRepository.findLastId() : 0;
+            Long derniere_id = profRepository.findLastNumero() != null ? profRepository.findLastNumero() : 0;
             Long id = derniere_id + 1;
             String helper = InfosStagiaireService.createNumber(id);
             if (!helper.equals(professeur.getNumero())) {
@@ -60,7 +68,7 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
              */
             InfosProfEntity validated_professeur = super.findOne(professeur.getId());
             if (validated_professeur != null) {
-                String helper = InfosStagiaireService.createNumber(professeur.getId());
+                String helper = professeur.getNumero();
                 if (!helper.equals(validated_professeur.getNumero())) {
                     body.put("message", "le numéro doit être unique");
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
@@ -71,17 +79,20 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
             body.put("message", "cet nom complet est utilisé");
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
         }
+
         return super.ajouter_update(professeur);
+
     }
 
     public ResponseEntity<Object> ajouter_update_jointure(InfosProfEntity professeur)
             throws ParseException {
+        Map<String, Object> body = new HashMap<>();// output
         if (professeur.getStagiaire_ids() != null) {
             if (!professeur.getStagiaire_ids().isEmpty()) {
                 professeur.getStagiaire_ids().forEach(id -> {
                     InfosStagiaireEntity stagiaireEntity = stagiaireService.findOne(id);
                     if (stagiaireEntity != null) {
-                        professeur.getListe_des_eleves().add(stagiaireEntity);
+                        professeur.getStagiaires().add(stagiaireEntity);
                     }
                 });
 
@@ -93,6 +104,9 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
             if (matiere != null) {
                 professeur.setMatiere(matiere);
             }
+        } else {
+            body.put("matiere_id", "tu devrais ajouter un matière");
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(body);
         }
 
         return this.ajouter_update(professeur);
@@ -100,8 +114,7 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
 
     public ResponseEntity<Object> countProfByMatiere() {
         Map<String, Object> body = new HashMap<>();// output
-        Optional<Object[]> professeurs = profRepository.countByMatiere();
-        body.put("data", professeurs.get());
+        body.put("data", profRepository.countByMatiere());
         return ResponseEntity.status(HttpStatus.OK).body(body);
     };
 
@@ -110,7 +123,7 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
         List<Object[]> results = new ArrayList<>();
         List<InfosProfEntity> professeurs = profRepository.findAll();
         professeurs.forEach(prof -> {
-            Object[] row = { prof.getNom() + " " + prof.getPrenom(), prof.getListe_des_eleves().size() };
+            Object[] row = { prof.getNom() + " " + prof.getPrenom(), prof.getStagiaires().size() };
             results.add(row);
         });
         body.put("data", results);

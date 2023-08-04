@@ -5,7 +5,7 @@ import lombok.Data;
 
 @AllArgsConstructor
 @Data
-public class MatiereDto {
+public class EtablissementDto {
     private Long id;
     private String libelle;
 }
