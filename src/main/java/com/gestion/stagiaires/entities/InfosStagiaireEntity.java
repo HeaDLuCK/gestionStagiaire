@@ -62,7 +62,7 @@ public class InfosStagiaireEntity extends BaseEntity implements UserDetails {
 	private String adresse;
 
 	// jointure pour Liste_de_professeur;
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToMany(/*cascade = { CascadeType.PERSIST, CascadeType.MERGE },*/ fetch = FetchType.LAZY)
 	@JoinTable(name = "stagiaire_professeur_association", joinColumns = @JoinColumn(name = "stagiaire_id"), inverseJoinColumns = @JoinColumn(name = "prof_id"))
 	@JsonIgnore
 	List<InfosProfEntity> professeurs = new ArrayList<>();
@@ -79,7 +79,7 @@ public class InfosStagiaireEntity extends BaseEntity implements UserDetails {
 	}
 
 	// jointure pour établissement;
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY,cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JoinColumn(name = "etablissement_id")
 	@JsonIgnore
 	private InfosEtablissementEntity etablissement;

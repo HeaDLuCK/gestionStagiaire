@@ -50,7 +50,7 @@ public class InfosProfEntity extends BaseEntity {
 	private Boolean status = true;
 
 	// jointure pour matière
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JoinColumn(name = "matiere_id")
 	@JsonIgnore
 	private InfosMatiereEntity matiere;
@@ -67,7 +67,7 @@ public class InfosProfEntity extends BaseEntity {
 	}
 
 	// jointure pour eleves
-	@ManyToMany(mappedBy = "professeurs", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToMany(mappedBy = "professeurs", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
 	@JsonIgnore
 	private List<InfosStagiaireEntity> stagiaires = new ArrayList<>();
 
@@ -84,6 +84,9 @@ public class InfosProfEntity extends BaseEntity {
 
 	@Transient
 	private List<Long> stagiaire_ids;// pour define les stagiaires
+
+	@Transient
+	private List<Long> removedStagiaires_ids; //pour define les stagiaires seront supprimés
 
 	@Transient
 	private Long matiere_id;// pour define l'matiere

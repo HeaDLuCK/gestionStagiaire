@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.gestion.stagiaires.dto.ProfDto;
 import com.gestion.stagiaires.entities.InfosMatiereEntity;
 import com.gestion.stagiaires.entities.InfosProfEntity;
 import com.gestion.stagiaires.entities.InfosStagiaireEntity;
@@ -87,16 +88,30 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
     public ResponseEntity<Object> ajouter_update_jointure(InfosProfEntity professeur)
             throws ParseException {
         Map<String, Object> body = new HashMap<>();// output
-        if (professeur.getStagiaire_ids() != null) {
-            if (!professeur.getStagiaire_ids().isEmpty()) {
-                professeur.getStagiaire_ids().forEach(id -> {
-                    InfosStagiaireEntity stagiaireEntity = stagiaireService.findOne(id);
-                    if (stagiaireEntity != null) {
-                        professeur.getStagiaires().add(stagiaireEntity);
+        if (professeur.getRemovedStagiaires_ids() != null && !professeur.getRemovedStagiaires_ids().isEmpty()) {
+                professeur.getRemovedStagiaires_ids().forEach(id -> {
+                    InfosStagiaireEntity stagiaire = stagiaireService.findOne(id);
+                    if (stagiaire != null) {
+                        Boolean check = stagiaire.getProfesseursList()
+                                .contains(new ProfDto(professeur.getId(), professeur.getNom(), professeur.getPrenom()));
+                        if (check) {
+                            stagiaire.getProfesseurs().removeIf(prof -> prof.getId().equals(professeur.getId()));
+                        }
                     }
                 });
-
-            }
+        }
+        
+        if (professeur.getStagiaire_ids() != null && !professeur.getStagiaire_ids().isEmpty()) {
+                professeur.getStagiaire_ids().forEach(id -> {
+                    InfosStagiaireEntity stagiaire = stagiaireService.findOne(id);
+                    if (stagiaire != null) {
+                        Boolean check = stagiaire.getProfesseursList()
+                                .contains(new ProfDto(professeur.getId(), professeur.getNom(), professeur.getPrenom()));
+                        if (!check) {
+                            stagiaire.getProfesseurs().add(professeur);
+                        }
+                    }
+                });
         }
 
         if (professeur.getMatiere_id() != null) {

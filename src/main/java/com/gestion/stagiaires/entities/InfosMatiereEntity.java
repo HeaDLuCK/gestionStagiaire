@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gestion.stagiaires.dto.ProfDto;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,7 +39,7 @@ public class InfosMatiereEntity extends BaseEntity {
 	private Boolean status = true;
 
 	// jointure pour Liste des profs
-	@OneToMany(mappedBy = "matiere",fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "matiere",fetch = FetchType.LAZY,cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnore
 	private List<InfosProfEntity> liste_des_profs = new ArrayList<>();
 
@@ -53,7 +54,8 @@ public class InfosMatiereEntity extends BaseEntity {
 		return data;
 	}
 
-	// @Transient
+	@Transient
 	private List<Long> professeurs_ids;// pour define les professeurs
+	
 
 }

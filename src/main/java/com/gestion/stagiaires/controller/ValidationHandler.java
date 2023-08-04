@@ -33,8 +33,8 @@ public class ValidationHandler {
 
     @ExceptionHandler(value = DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleSqlException(DataIntegrityViolationException ex, WebRequest request) {
-        Map<String, String> error = new HashMap<>();
-        error.put("message", "numero/nom comple doit être unique");
+        Map<String, Object> error = new HashMap<>();
+        error.put("message", ex.getMostSpecificCause().toString().subSequence(51, 87));
         error.put("times", LocalDateTime.now().toString());
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

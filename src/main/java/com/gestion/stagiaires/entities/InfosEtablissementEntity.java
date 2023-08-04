@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = false)
 public class InfosEtablissementEntity extends BaseEntity {
 
-	@OneToMany(mappedBy = "etablissement",fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "etablissement",fetch = FetchType.LAZY,cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JsonIgnore
 	private List<InfosStagiaireEntity> stagiaires_Liste = new ArrayList<>();
 
