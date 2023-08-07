@@ -128,7 +128,7 @@ public class InfosProfService extends BaseService<InfosProfEntity, InfosProfRepo
                     if (stagiaire != null) {
                         Boolean check = stagiaire.getProfesseursList()
                                 .contains(new ProfDto(professeur.getId(), professeur.getNom(), professeur.getPrenom()));
-                        if (!check) {
+                                if (!check) {
                             stagiaire.getProfesseurs().add(professeur);
                         }
                     }

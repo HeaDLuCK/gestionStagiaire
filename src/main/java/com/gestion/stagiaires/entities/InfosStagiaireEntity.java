@@ -102,7 +102,7 @@ public class InfosStagiaireEntity extends BaseEntity implements UserDetails {
 	private String login;
 
 	@Column(length = 255,nullable = false)
-	@NotEmpty(message = "insérez un nouveau mot de passe ou un ancien mot de passe pour mettre à jour avec succès")
+	@NotEmpty(message = "mot de passe ne peut pas être vide")
 	private String mot_de_passe;
 
 

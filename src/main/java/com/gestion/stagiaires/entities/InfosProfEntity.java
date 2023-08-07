@@ -19,7 +19,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -38,7 +37,7 @@ public class InfosProfEntity extends BaseEntity {
 	private String numero;
 
 	@Column(length = 120, nullable = false)
-	@NotNull
+	@NotEmpty(message = "le nom ne peut pas être vide")
 	private String nom;
 
 	@Column(length = 120)
